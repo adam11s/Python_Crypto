@@ -1,0 +1,62 @@
+#Import the requests library
+import urllib.request
+import json
+
+# you need to register in coinmarketcap to get the apicode
+# you can test your code first with their sandbox
+# get the sandbox apicode from https://sandbox.coinmarketcap.com
+# get the real data apicode from https://coinmarketcap.com/api/
+# remember sandbox and real data have different api and you need to register seperadely
+URL = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
+#URL = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
+apicode='xxx'
+parameters = {
+  'start':'1',
+  'limit':'5000',
+  'convert':'USD'
+}
+headers = {
+  'Accepts': 'application/json',
+  'X-CMC_PRO_API_KEY': apicode,
+}
+
+
+def get_latest_crypto_price():
+
+    req = urllib.request.Request(URL)
+    for key, val in headers.items():
+        req.add_header(key, val)
+    try:
+        resp = urllib.request.urlopen(req)
+        content = resp.read()
+    except:
+        print("An exception occurred")
+        
+    theJSON = json.loads(content)
+    #write data to a files for later use
+    f = open("crypto.json","wb+")
+    f.write(content)
+
+
+    return(theJSON)
+        
+
+def main():
+    theJSON = get_latest_crypto_price()
+    #Printing all Crypto name and current price
+    for i in theJSON['data']:
+        name = ''
+        price = ''
+        name = i['name']
+        price = i['quote']['USD']['price']
+        print('{:25} : ${:17.10f}'.format(name, price))
+    #Printing Bitcoin price
+    for i in theJSON["data"]:
+        if (i['name'] == 'Bitcoin') :
+            print('\nBitcoin current price is ', i['quote']['USD']['price'])
+    
+
+
+
+if  __name__ == "__main__": main()
+
